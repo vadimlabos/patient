@@ -4,91 +4,91 @@ from pydantic import BaseModel
 
 
 class PatientSchema(BaseModel):
-    icode: int
-    itz: str
-    ilast: str
-    ifirst: str
-    ifather: str
+    icode: Optional[int] = None
+    itz: Optional[str] = None
+    ilast: Optional[str] = None
+    ifirst: Optional[str] = None
+    ifather: Optional[str] = None
     idob: Optional[int] = None
     isex: Optional[int] = None
-    istr1: str
-    istr2: str
-    izip: str
-    iphone: str
-    ifax: str
+    istr1: Optional[str] = None
+    istr2: Optional[str] = None
+    izip: Optional[str] = None
+    iphone: Optional[str] = None
+    ifax: Optional[str] = None
     itype: Optional[int] = None
     idate: Optional[int] = None
     idept: Optional[int] = None
     icredit: Optional[int] = None
     ihiv: Optional[int] = None
     isrce: Optional[int] = None
-    iacc: str
+    iacc: Optional[str] = None
     ihpb: Optional[int] = None
     isndcode: Optional[int] = None
     iheight: Optional[int] = None
     iweight: Optional[float] = None
     istate: Optional[int] = None
-    iroom: str
+    iroom: Optional[str] = None
     iorigland: Optional[int] = None
     iisdead: Optional[int] = None
     ipopultype: Optional[int] = None
     iprofession: Optional[int] = None
     iemploydate: Optional[int] = None
-    iidtype: int
+    iidtype: Optional[int] = None
     imosrce2: Optional[int] = None
     imosrce1: Optional[int] = None
     ifasrce2: Optional[int] = None
     ifasrce1: Optional[int] = None
-    iwphone1: str
+    iwphone1: Optional[str] = None
     iphoneext: Optional[int] = None
-    imobile: str
-    iemail: str
+    imobile: Optional[str] = None
+    iemail: Optional[str] = None
     ibeeper: Optional[int] = None
-    iotherid1: str
-    iotherid2: str
+    iotherid1: Optional[str] = None
+    iotherid2: Optional[str] = None
     idoccode: Optional[int] = None
     ipersonal: Optional[int] = None
     icity: Optional[int] = None
     icountry: Optional[int] = None
-    istr3: str
+    istr3: Optional[str] = None
     idateofdeath: Optional[int] = None
     iselfpay: Optional[int] = None
-    imid: str
-    ielastname: str
-    iefirstname: str
-    ieid: str
-    iestr1: str
-    iestr2: str
-    iestr3: str
-    iezip: str
+    imid: Optional[str] = None
+    ielastname: Optional[str] = None
+    iefirstname: Optional[str] = None
+    ieid: Optional[str] = None
+    iestr1: Optional[str] = None
+    iestr2: Optional[str] = None
+    iestr3: Optional[str] = None
+    iezip: Optional[str] = None
     iestate: Optional[int] = None
     iecity: Optional[int] = None
     iecountry: Optional[int] = None
-    iemobile: str
+    iemobile: Optional[str] = None
     iebeeper: Optional[int] = None
-    ieemail: str
-    iephone: str
+    ieemail: Optional[str] = None
+    iephone: Optional[str] = None
     iephoneext: Optional[int] = None
-    iewphone1: str
-    iefax: str
-    iref: str
-    iid: str
+    iewphone1: Optional[str] = None
+    iefax: Optional[str] = None
+    iref: Optional[str] = None
+    iid: Optional[str] = None
     inocharge: Optional[int] = None
     lastupdate: Optional[int] = None
-    icityn: str
-    iecityn: str
+    icityn: Optional[str] = None
+    iecityn: Optional[str] = None
     istatus: Optional[int] = None
-    ibloodtype: str
+    ibloodtype: Optional[str] = None
     istudycode: Optional[int] = None
-    isstr1: str
-    isstr2: str
-    iszip: str
+    isstr1: Optional[str] = None
+    isstr2: Optional[str] = None
+    iszip: Optional[str] = None
     iscity: Optional[int] = None
-    iscityn: str
+    iscityn: Optional[str] = None
     isstate: Optional[int] = None
     iscountry: Optional[int] = None
-    isphone: str
-    ismobile: str
+    isphone: Optional[str] = None
+    ismobile: Optional[str] = None
     iviewresultdist: Optional[int] = None
     ivip: Optional[int] = None
 

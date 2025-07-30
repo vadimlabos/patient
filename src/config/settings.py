@@ -12,7 +12,14 @@ def get_general_settings():
 class GeneralSettings(BaseSettings):
     db_connection_string: str
     db_driver: str
+
     patient_table: str
+    patient_id_table: str
+    episode_table: str
+
+    redis_host: str
+    redis_port: int
+    redis_db: int
 
     class Config:
         env_file = Path(__file__).parent / "./../.env"
