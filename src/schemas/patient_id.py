@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class PatientIdSchema(BaseModel):
@@ -9,5 +9,4 @@ class PatientIdSchema(BaseModel):
     iiidtype: Optional[int] = None
     iipid: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

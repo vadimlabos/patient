@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import status, patient
+from src.routers import status, patient
 
 app = FastAPI()
 app.include_router(status.router)

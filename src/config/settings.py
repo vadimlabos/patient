@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from pydantic import ConfigDict
 
 from pydantic_settings import BaseSettings
 
@@ -21,5 +22,4 @@ class GeneralSettings(BaseSettings):
     redis_port: int
     redis_db: int
 
-    class Config:
-        env_file = Path(__file__).parent / "./../.env"
+    model_config = ConfigDict(env_file=Path(__file__).parent / "./../.env")
