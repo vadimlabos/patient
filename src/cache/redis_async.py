@@ -1,8 +1,9 @@
-import redis
+# redis_client.py
+import redis.asyncio as redis
 from src.config.settings import get_general_settings
 
 
-class RedisClient:
+class RedisClientAsync:
     def __init__(self):
         self.__redis = redis.Redis(
             host=get_general_settings().redis_host,
@@ -11,17 +12,17 @@ class RedisClient:
             decode_responses=True,  # Makes values strings instead of bytes
         )
 
-    def ping(self):
+    async def ping(self):
         try:
-            self.__redis.ping()
+            await self.__redis.ping()
         except Exception as e:
             print(f"Redis connection failed ❌: {e}")
 
-    def set(self, key: str, value: str) -> bool:
-        return self.__redis.set(key, value)
+    async def set(self, key: str, value: str) -> bool:
+        return await self.__redis.set(key, value)
 
-    def get(self, key: str) -> str | None:
-        return self.__redis.get(key)
+    async def get(self, key: str) -> str | None:
+        return await self.__redis.get(key)
 
-    def close(self):
-        self.__redis.close()
+    async def close(self):
+        await self.__redis.close()

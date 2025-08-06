@@ -11,17 +11,19 @@ DATABASE_URL = (
 # Create synchronous SQLAlchemy engine
 engine = create_engine(
     DATABASE_URL,
-    echo=False,         # set True for debugging
-    pool_pre_ping=True, # auto-reconnect dropped connections
-    pool_size=10,       # adjust based on load
-    max_overflow=20,    # additional connections beyond pool_size
+    echo=False,              # Keep off unless troubleshooting
+    pool_pre_ping=True,      # Reconnect dropped connections automatically
+    pool_size=25,            # Tune this based on your DB and traffic
+    max_overflow=10,         # Allow up to 30 concurrent connections
+    pool_timeout=30,         # Seconds to wait before giving up on a connection
+    pool_recycle=180,       # Recycle connections after 3 min to avoid stale ones
     future=True
 )
 
 # Sync session factory
 SessionLocal = sessionmaker(
     autocommit=False,
-    autoflush=False,
+    autoflush=True,
     bind=engine
 )
 

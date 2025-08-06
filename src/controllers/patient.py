@@ -1,5 +1,4 @@
 import asyncio
-import json
 
 from sqlalchemy import select, or_, and_
 from src.db.database import get_db
@@ -7,14 +6,30 @@ from src.models.episode import Episode
 from src.models.patient import Patient
 from src.models.patient_id import Identifier
 from src.cache.redis import RedisClient
+from src.cache.redis_async import RedisClientAsync
 
 
-class Controller:
+class PatientController:
 
     def __init__(self):
         self.__cache: RedisClient = RedisClient()
+        self.__cache_async: RedisClientAsync = RedisClientAsync()
 
-    async def get_patient_by_code(self, code: int) -> Patient | None:
+    def get_patient_by_code(self, code: int) -> Patient | None:
+        self.__get_cache_config()
+        db_gen = get_db()
+        session = next(db_gen)
+        try:
+            stmt = select(Patient).where(Patient.icode == code)
+            result = session.execute(stmt)
+            return result.scalar_one_or_none()
+        finally:
+            try:
+                next(db_gen)
+            except StopIteration:
+                pass
+
+    async def get_patient_by_code_async(self, code: int) -> Patient | None:
         await self.__get_cache_config_async()
         db_gen = get_db()
         session = next(db_gen)
@@ -28,7 +43,52 @@ class Controller:
             except StopIteration:
                 pass
 
-    async def get_patient_by_string(self, text: str) -> list[Patient] | None:
+    def get_patient_by_string(self, text: str) -> list[Patient] | None:
+        self.__get_cache_config()
+        db_gen = get_db()
+        session = next(db_gen)
+        try:
+            stmt = (
+                select(Patient)
+                .join(Identifier, Patient.icode == Identifier.iicode)
+                .where(
+                    or_(
+                        Identifier.iipid == text,
+                        Identifier.iipid.like(f"{text}-%")
+                    )
+                )
+                .order_by(Identifier.iipid.asc(), Patient.icode.asc())
+                .limit(20)
+            )
+            result = session.execute(stmt)
+            records: list[Patient] = result.scalars().all()
+            for patient in records:
+                stmt = (
+                    select(Episode)
+                    .where(
+                        and_(
+                            Episode.eppatcode == patient.icode,
+                            Episode.epclosedate == 0,
+                            Episode.eptype.in_([1, 2, 3, 4, 12])
+                        )
+                    )
+                    .order_by(Episode.epnumber.desc())
+                )
+                result = session.execute(stmt)
+                episode: Episode = result.scalars().first()
+
+        except Exception as e:
+            print(f"Exception")
+        finally:
+            try:
+                next(db_gen)
+
+            except StopIteration:
+                pass
+            finally:
+                return records
+
+    async def get_patient_by_string_async(self, text: str) -> list[Patient] | None:
         await self.__get_cache_config_async()
         db_gen = get_db()
         session = next(db_gen)
@@ -73,23 +133,21 @@ class Controller:
             finally:
                 return records
 
-    async def __get_cache_config(self):
-        print("Getting cache from REDIS")
-        await self.__cache.ping()
+    def __get_cache_config(self):
+        self.__cache.ping()
 
-        await self.__cache.get("FILTER_BY_PATIENT_SITE")
-        await self.__cache.get("CHECKSUM_SEPERATOR_FOR_SAVE")
-        await self.__cache.get("USE_SENDER_EPISODE_FOR_PATIENT")
-        await self.__cache.get("SEARCH_PATIENT_BY_HOSPITALIZATION")
-        await self.__cache.get("SEARCH_PATIENT_BY_HAS_ORDERS_DAYS_BACK")
-        await self.__cache.get("SEARCH_PATIENTS_BY_VIEW")
-        await self.__cache.get("EXECUTE_DEMOG_WITH_EPISODE")
-        await self.__cache.get("EXECUTE_DEMOG_POLICY")
-        await self.__cache.get("PATIENT_CHECKSUM_IDTYPE_SEARCH_LOGIC")
+        self.__cache.get("FILTER_BY_PATIENT_SITE")
+        self.__cache.get("CHECKSUM_SEPERATOR_FOR_SAVE")
+        self.__cache.get("USE_SENDER_EPISODE_FOR_PATIENT")
+        self.__cache.get("SEARCH_PATIENT_BY_HOSPITALIZATION")
+        self.__cache.get("SEARCH_PATIENT_BY_HAS_ORDERS_DAYS_BACK")
+        self.__cache.get("SEARCH_PATIENTS_BY_VIEW")
+        self.__cache.get("EXECUTE_DEMOG_WITH_EPISODE")
+        self.__cache.get("EXECUTE_DEMOG_POLICY")
+        self.__cache.get("PATIENT_CHECKSUM_IDTYPE_SEARCH_LOGIC")
 
     async def __get_cache_config_async(self):
-        print("Getting cache from REDIS")
-        await self.__cache.ping()
+        await self.__cache_async.ping()
 
         keys = [
             "FILTER_BY_PATIENT_SITE",
@@ -104,5 +162,5 @@ class Controller:
         ]
 
         # Launch all cache.get calls concurrently
-        tasks = [self.__cache.get(key) for key in keys]
+        tasks = [self.__cache_async.get(key) for key in keys]
         results = await asyncio.gather(*tasks)
