@@ -1,7 +1,8 @@
 import asyncio
 
 from sqlalchemy import select, or_, and_
-from src.db.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.db.database import get_db, async_session_maker
 from src.models.episode import Episode
 from src.models.patient import Patient
 from src.models.patient_id import Identifier
@@ -58,7 +59,6 @@ class PatientController:
                     )
                 )
                 .order_by(Identifier.iipid.asc(), Patient.icode.asc())
-                .limit(20)
             )
             result = session.execute(stmt)
             records: list[Patient] = result.scalars().all()
@@ -88,50 +88,28 @@ class PatientController:
             finally:
                 return records
 
-    async def get_patient_by_string_async(self, text: str) -> list[Patient] | None:
+    async def get_patient_by_string_async(self, text: str) -> list[Patient]:
         await self.__get_cache_config_async()
-        db_gen = get_db()
-        session = next(db_gen)
-        try:
-            stmt = (
-                select(Patient)
-                .join(Identifier, Patient.icode == Identifier.iicode)
-                .where(
-                    or_(
-                        Identifier.iipid == text,
-                        Identifier.iipid.like(f"{text}-%")
-                    )
-                )
-                .order_by(Identifier.iipid.asc(), Patient.icode.asc())
-                .limit(20)
-            )
-            result = session.execute(stmt)
-            records: list[Patient] = result.scalars().all()
-            for patient in records:
-                stmt = (
-                    select(Episode)
-                    .where(
-                        and_(
-                            Episode.eppatcode == patient.icode,
-                            Episode.epclosedate == 0,
-                            Episode.eptype.in_([1, 2, 3, 4, 12])
-                        )
-                    )
-                    .order_by(Episode.epnumber.desc())
-                )
-                result = session.execute(stmt)
-                episode: Episode = result.scalars().first()
 
-        except Exception as e:
-            print(f"Exception")
-        finally:
+        async with async_session_maker() as session:  # <- preferred async session
             try:
-                next(db_gen)
+                stmt = (
+                    select(Patient)
+                    .join(Identifier, Patient.icode == Identifier.iicode)
+                    .order_by(Identifier.iipid.asc(), Patient.icode.asc())
+                    .limit(20)
+                )
+                result = await session.execute(stmt)
+                patients = result.scalars().all()
 
-            except StopIteration:
-                pass
-            finally:
-                return records
+                for patient in patients:
+                    patient.icode = 0
+
+                return None
+
+            except Exception as e:
+                print(f"Exception occurred: {e}")
+                return []
 
     def __get_cache_config(self):
         self.__cache.ping()

@@ -23,8 +23,8 @@ async def get_patient(
     if searchString is not None:
         patient = await controller.get_patient_by_string_async(searchString)
 
-    if patient is None:
-        raise HTTPException(status_code=404, detail="Patient not found")
+    # if patient is None:
+    #     raise HTTPException(status_code=404, detail="Patient not found")
 
     return patient
 
@@ -42,7 +42,7 @@ def get_patient(
     if searchString is not None:
         patient = controller.get_patient_by_string(searchString)
 
-    if patient is None:
-        raise HTTPException(status_code=404, detail="Patient not found")
+    # if patient is None:
+    #     raise HTTPException(status_code=404, detail="Patient not found")
 
     return patient

@@ -17,6 +17,7 @@ class GeneralSettings(BaseSettings):
     patient_table: str
     patient_id_table: str
     episode_table: str
+    request_table: str
 
     redis_host: str
     redis_port: int

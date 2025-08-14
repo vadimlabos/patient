@@ -1,11 +1,17 @@
 from src.controllers.compute import ComputeController
 from src.controllers.patient import PatientController
+from src.controllers.request import RequestController
 from src.db.database import get_db
-from src.dependences.singletons import patient_controller_singleton, compute_controller_singleton
+from src.dependences.singletons import patient_controller_singleton, compute_controller_singleton, \
+    request_controller_singleton
 
 
 def get_patient_controller() -> PatientController:
     return patient_controller_singleton
+
+
+def get_request_controller() -> RequestController:
+    return request_controller_singleton
 
 
 def get_compute_controller() -> ComputeController:

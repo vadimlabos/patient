@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 from src.config.settings import get_general_settings
 
@@ -9,7 +9,7 @@ DATABASE_URL = (
 )
 
 # Create synchronous SQLAlchemy engine
-engine = create_engine(
+async_engine = create_async_engine(
     DATABASE_URL,
     echo=False,              # Keep off unless troubleshooting
     pool_pre_ping=True,      # Reconnect dropped connections automatically
@@ -21,10 +21,10 @@ engine = create_engine(
 )
 
 # Sync session factory
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=True,
-    bind=engine
+async_session_maker = sessionmaker(
+    bind=async_engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
 )
 
 # Declarative base
@@ -33,7 +33,7 @@ Base = declarative_base()
 
 # Dependency to be used with FastAPI routes
 def get_db():
-    db = SessionLocal()
+    db = async_session_maker()
     try:
         yield db
     finally:
